@@ -91,7 +91,6 @@ public class ListDevice extends Fragment {
 
      @Override
      public void onViewCreated(View view, Bundle savedInstanceState){
-
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
              verifyPermissions();
          } else {

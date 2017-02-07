@@ -21,7 +21,7 @@ public class DeviceAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private List<BluetoothDevice> mData;
 
-    DeviceAdapter(Context context) {
+    public DeviceAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
     }
 
