@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name" translatable="false">Mercurio</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="charts">Charts</string>
+    <string name="control">Control</string>
+    <string name="progress_bar">Progress Bar</string>
+    <string name="selectors">Selectors</string>
+    <string name="tables">Tables</string>
+    <string name="desconectado"> Disconnected</string>
+    <string name="status">Status:</string>
+    <string name="connect">Connect</string>
+    <string name="mercurio">Mercurio</string>
+    <string name="interface_universal_para_sistemas_embarcados">Interface Universal para Sistemas Embarcado</string>
+
+    <item name="action_settings" type="id">Settings</item>
+
+    <string-array name="Frequency">
+        <item>Seconds</item>
+        <item>Minutes</item>
+        <item>Hours</item>
+        <item>Weeks</item>
+    </string-array>
+    <string name="title_activity_selector">Selector</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

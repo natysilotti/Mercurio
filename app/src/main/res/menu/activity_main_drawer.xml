@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/control"
+            android:icon="@drawable/img_controller"
+            android:title="@string/control" />
+        <item
+            android:id="@+id/charts"
+            android:icon="@drawable/img_chart"
+            android:title="@string/charts" />
+        <item
+            android:id="@+id/tables"
+            android:icon="@drawable/img_table"
+            android:title="@string/tables" />
+        <item
+            android:id="@+id/selectors"
+            android:icon="@drawable/img_selector"
+            android:title="@string/selectors" />
+        <item
+            android:id="@+id/progress_bar"
+            android:icon="@drawable/img_progress"
+            android:title="@string/progress_bar" />
+    </group>
+
+    <item android:title="Information">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@android:drawable/ic_menu_add"
+                android:title="Other" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@android:drawable/ic_menu_info_details"
+                android:title="About us" />
+        </menu>
+    </item>
+
+</menu>
