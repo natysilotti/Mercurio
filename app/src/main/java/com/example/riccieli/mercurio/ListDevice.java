@@ -17,6 +17,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,14 +90,15 @@ public class ListDevice extends Fragment {
         return view;
     }
 
-     @Override
-     public void onViewCreated(View view, Bundle savedInstanceState){
-         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-             verifyPermissions();
-         } else {
-             verifyIsEnable();
-         }
-     }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState){
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            verifyPermissions();
+        } else {
+            verifyIsEnable();
+        }
+    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -171,7 +173,13 @@ public class ListDevice extends Fragment {
                 progressBar.setVisibility(View.GONE);
                 String msg;
             }
+            else if(BluetoothDevice.ACTION_FOUND.equals(action)){
+
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Log.d("List", device.getName()+ "-" + device.getAddress());
+            }
         }
+
     };
 
 
