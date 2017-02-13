@@ -39,7 +39,7 @@ public class ListDevice extends Fragment {
     private ProgressBar progressBar;
 
     private BluetoothAdapter mBluetoothAdapter;
-    private DeviceAdapter mAdapter;
+    public DeviceAdapter mAdapter;
     private ArrayList<BluetoothDevice> mDeviceList;
 
     @Override
@@ -60,7 +60,11 @@ public class ListDevice extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list_device, container, false);
         listView = (ListView) view.findViewById(R.id.listview_devices);
+        mDeviceList = new ArrayList<>();
+        mAdapter = new DeviceAdapter(getActivity());
 
+        mAdapter.setData(mDeviceList);
+        listView.setAdapter(mAdapter);
 
         txt = (TextView) view.findViewById(R.id.nothing_found);
         txt.setVisibility(View.GONE);
@@ -168,14 +172,20 @@ public class ListDevice extends Fragment {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                mDeviceList.clear();
                 progressBar.setVisibility(View.VISIBLE);
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 progressBar.setVisibility(View.GONE);
                 String msg;
             }
             else if(BluetoothDevice.ACTION_FOUND.equals(action)){
-
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                txt.setVisibility(View.GONE);
+
+                if (! mDeviceList.contains(device) ) {
+                    mDeviceList.add(device);
+                    mAdapter.notifyDataSetChanged();
+                }
                 Log.d("List", device.getName()+ "-" + device.getAddress());
             }
         }
