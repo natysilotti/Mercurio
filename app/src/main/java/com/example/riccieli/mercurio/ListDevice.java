@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -37,6 +38,7 @@ public class ListDevice extends Fragment {
 
     private TextView txt;
     private ProgressBar progressBar;
+    private BluetoothDevice deviceForConnect;
 
     private BluetoothAdapter mBluetoothAdapter;
     public DeviceAdapter mAdapter;
@@ -62,6 +64,19 @@ public class ListDevice extends Fragment {
         listView = (ListView) view.findViewById(R.id.listview_devices);
         mDeviceList = new ArrayList<>();
         mAdapter = new DeviceAdapter(getActivity());
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                if (mBluetoothAdapter.isDiscovering()) {
+                    mBluetoothAdapter.cancelDiscovery();
+                }
+
+                deviceForConnect = mDeviceList.get(position);
+                //connectDevice();
+            }
+        });
+
 
         mAdapter.setData(mDeviceList);
         listView.setAdapter(mAdapter);
@@ -191,7 +206,6 @@ public class ListDevice extends Fragment {
         }
 
     };
-
 
 
     @Override
