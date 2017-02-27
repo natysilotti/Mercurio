@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.example.riccieli.mercurio.ListDevice">
+    tools:context="com.example.riccieli.mercurio.bluetooth.ListDevice">
     <ProgressBar
         android:id="@+id/progressbar"
         style="?android:attr/progressBarStyleHorizontal"

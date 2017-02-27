@@ -11,22 +11,29 @@ import android.widget.TextView;
 
 import com.example.riccieli.mercurio.R;
 
-import java.util.List;
-
-/**
- * Created by Riccieli on 03/02/2017.
- */
+import java.util.ArrayList;
 
 public class DeviceAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
-    private List<BluetoothDevice> mData;
+    private ArrayList<BluetoothDevice> mData;
 
     public DeviceAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
+        mData = new ArrayList<>();
     }
 
-    public void setData(List<BluetoothDevice> data) {
-        mData = data;
+    public void addDevice(BluetoothDevice device) {
+        mData.add(device);
+        this.notifyDataSetChanged();
+    }
+
+    public void clear() {
+        mData.clear();
+        this.notifyDataSetChanged();
+    }
+
+    public Boolean contains(BluetoothDevice device) {
+        return mData.contains(device);
     }
 
     @Override
@@ -65,9 +72,9 @@ public class DeviceAdapter extends BaseAdapter {
         if (name == null) {
             name = "Nome desconhecido ";
             holder.device_name.setTextColor(Color.RED);
-        } else {
-            holder.device_name.setText(name);
         }
+
+        holder.device_name.setText(name);
         holder.device_address.setText(device.getAddress());
         return convertView;
     }

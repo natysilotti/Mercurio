@@ -118,8 +118,6 @@ public class BluetoothService extends Service {
     public boolean connect(String address) {
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null ) return false;
-
-        mConnectionState = STATE_CONNECTING;
         connectThread = new ConnectThread(device);
         connectThread.start();
         return true;
@@ -129,7 +127,7 @@ public class BluetoothService extends Service {
         private final BluetoothSocket mmSocket;
         private final BluetoothDevice mmDevice;
 
-        public ConnectThread(BluetoothDevice device) {
+        ConnectThread(BluetoothDevice device) {
             // Use a temporary object that is later assigned to mmSocket,
             // because mmSocket is final
             BluetoothSocket tmp = null;
@@ -143,11 +141,13 @@ public class BluetoothService extends Service {
                 Log.e(TAG, "Socket not created");
             }
             mmSocket = tmp;
+
         }
 
         public void run() {
             // Cancel discovery because it will slow down the connection
             mBluetoothAdapter.cancelDiscovery();
+            mConnectionState = STATE_CONNECTING;
 
             try {
                 // Connect the device through the socket. This will block
@@ -157,18 +157,13 @@ public class BluetoothService extends Service {
                 // Unable to connect; close the socket and get out
                 try {
                     mmSocket.close();
-                } catch (IOException closeException) { }
+                } catch (IOException ignored) { }
 
                 Log.e(TAG, "Socket not connected");
-                if (mConnectionState == STATE_DISCONNECTED ) {
-                    Log.e(TAG, "The connection from GATT server dropped.");
-                    mBluetoothDeviceAddress = null;
-                    broadcastUpdate(ACTION_CONNECTION_FAIL);
-                } else {
-                    Log.i(TAG, "Disconnected from GATT server.");
-                    broadcastUpdate(ACTION_DISCONNECTED);
-                    mConnectionState = STATE_DISCONNECTED;
-                }
+                Log.e(TAG, "The connection from server failed.");
+                mConnectionState = STATE_DISCONNECTED;
+                mBluetoothDeviceAddress = null;
+                broadcastUpdate(ACTION_CONNECTION_FAIL);
                 return;
             }
 
@@ -185,10 +180,10 @@ public class BluetoothService extends Service {
         }
 
         /** Will cancel an in-progress connection, and close the socket */
-        public void cancel() {
+        void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException ignored) { }
         }
     }
 
@@ -200,7 +195,7 @@ public class BluetoothService extends Service {
         private String data = "";
         private String aux = "";
 
-        public ManageConnectedSocket(BluetoothSocket socket) {
+        ManageConnectedSocket(BluetoothSocket socket) {
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -315,16 +310,16 @@ public class BluetoothService extends Service {
         sendBroadcast(intent);
     }
 
-    public void disconnect() {
+    public Boolean disconnect() {
 
         if (connectThread != null){
             connectThread.cancel();
-            return;
+            return true;
         }
 
         if (mBluetoothAdapter == null || manageConnectedSocket == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
+            return false;
         }
 
         if (mConnectionState != STATE_CONNECTING ){
@@ -339,11 +334,13 @@ public class BluetoothService extends Service {
                     manageConnectedSocket.cancel();
                 }
             }).start();
-            return;
+            return true;
         }
         Log.w("disconnect", "Desvinculado com a Main...!!");
         mConnectionState = STATE_DISCONNECTING;
         manageConnectedSocket.cancel();
+
+        return true;
     }
 
     /**

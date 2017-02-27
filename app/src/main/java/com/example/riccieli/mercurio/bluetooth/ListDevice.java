@@ -1,4 +1,4 @@
-package com.example.riccieli.mercurio;
+package com.example.riccieli.mercurio.bluetooth;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
@@ -11,13 +11,13 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,22 +27,20 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.riccieli.mercurio.bluetooth.DeviceAdapter;
+import com.example.riccieli.mercurio.R;
 
-import java.util.ArrayList;
+import static com.example.riccieli.mercurio.Constants.ADDRESS_CONNECTION;
+import static com.example.riccieli.mercurio.Constants.INTENT_CONNECTION;
 
 public class ListDevice extends Fragment {
     private static final int REQUEST_CODE_LOCATION = 1;
-    private ListView listView;
-    public ListDevice() { }
-
     private TextView txt;
     private ProgressBar progressBar;
-    private BluetoothDevice deviceForConnect;
 
     private BluetoothAdapter mBluetoothAdapter;
     public DeviceAdapter mAdapter;
-    private ArrayList<BluetoothDevice> mDeviceList;
+
+    public ListDevice() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,11 +56,15 @@ public class ListDevice extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onDestroy() {
+        getActivity().unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list_device, container, false);
-        listView = (ListView) view.findViewById(R.id.listview_devices);
-        mDeviceList = new ArrayList<>();
+        ListView listView = (ListView) view.findViewById(R.id.listview_devices);
         mAdapter = new DeviceAdapter(getActivity());
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -71,15 +73,22 @@ public class ListDevice extends Fragment {
                 if (mBluetoothAdapter.isDiscovering()) {
                     mBluetoothAdapter.cancelDiscovery();
                 }
-
-                deviceForConnect = mDeviceList.get(position);
-                //connectDevice();
+                BluetoothDevice device = mAdapter.getItem(position);
+                if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                    connect(device);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Atenção!")
+                            .setMessage("Dispositivo não pareado.")
+                            .setPositiveButton("OK", null);
+                    AlertDialog levelDialog;
+                    levelDialog = builder.create();
+                    levelDialog.show();
+                }
             }
         });
-
-
-        mAdapter.setData(mDeviceList);
         listView.setAdapter(mAdapter);
+
 
         txt = (TextView) view.findViewById(R.id.nothing_found);
         txt.setVisibility(View.GONE);
@@ -106,12 +115,18 @@ public class ListDevice extends Fragment {
                 }
             }
         });
+
         return view;
+    }
+
+    private void connect(BluetoothDevice device) {
+        Intent intent = new Intent(INTENT_CONNECTION);
+        intent.putExtra(ADDRESS_CONNECTION, device.getAddress());
+        getActivity().sendBroadcast(intent);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             verifyPermissions();
         } else {
@@ -145,9 +160,6 @@ public class ListDevice extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             mBluetoothAdapter.enable();
-                            // Ativa a escuta para mudanças nas configurações do adaptador e dispositivos Bluetooth
-                            IntentFilter filter = new IntentFilter();
-                            filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
                         }
                     })
                     .setNegativeButton("Não ligar", null)
@@ -159,8 +171,12 @@ public class ListDevice extends Fragment {
             Button nbutton = levelDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
             nbutton.setTextColor(ContextCompat.getColor(getActivity(), R.color.gray));
         } else {
-            mBluetoothAdapter.startDiscovery();
+            firstScan();
         }
+    }
+
+    private void firstScan() {
+        mBluetoothAdapter.startDiscovery();
     }
 
     @Override
@@ -187,7 +203,7 @@ public class ListDevice extends Fragment {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
-                mDeviceList.clear();
+                mAdapter.clear();
                 progressBar.setVisibility(View.VISIBLE);
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 progressBar.setVisibility(View.GONE);
@@ -197,24 +213,30 @@ public class ListDevice extends Fragment {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 txt.setVisibility(View.GONE);
 
-                if (! mDeviceList.contains(device) ) {
-                    mDeviceList.add(device);
-                    mAdapter.notifyDataSetChanged();
+                if (! mAdapter.contains(device) ) {
+                    mAdapter.addDevice(device);
                 }
-                Log.d("List", device.getName()+ "-" + device.getAddress());
+            } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        break;
+                    case BluetoothAdapter.STATE_ON:
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                firstScan();
+                            }
+                        }, 500);
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        break;
+                }
             }
         }
 
     };
 
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
 }
