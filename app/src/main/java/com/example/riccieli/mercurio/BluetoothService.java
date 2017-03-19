@@ -35,18 +35,34 @@ public class BluetoothService extends Service {
     private static final int STATE_CONNECTED = 3;
 
     public final static String
-            ACTION_CONNECTED        = "com.bemestaranimal.bepmobile.ACTION_CONNECTED",
-            ACTION_CONNECTION_DROP  = "com.bemestaranimal.bepmobile.ACTION_CONNECTION_DROP",
-            ACTION_CONNECTION_FAIL  = "com.bemestaranimal.bepmobile.ACTION_CONNECTION_FAIL",
-            ACTION_DISCONNECTED     = "com.bemestaranimal.bepmobile.ACTION_DISCONNECTED",
-            EXTRA_DATA              = "com.bemestaranimal.bepmobile.EXTRA_DATA";
+            ACTION_CONNECTED        = "com.example.riccieli.ACTION_CONNECTED",
+            ACTION_CONNECTION_DROP  = "com.example.riccieli.ACTION_CONNECTION_DROP",
+            ACTION_CONNECTION_FAIL  = "com.example.riccieli.ACTION_CONNECTION_FAIL",
+            ACTION_DISCONNECTED     = "com.example.riccieli.ACTION_DISCONNECTED",
+            NUMBER_OF_SWITCHES = "com.example.riccieli.NUMBER_OF_SWITCHES",
+            EXTRA_DATA_TEXT = "com.example.riccieli.EXTRA_DATA_TEXT",
+            ITENS_OF_COMBOBOX = "com.example.riccieli.ITENS_OF_COMBOBOX";
+
 
     public final static String
-            DATA_ERROR_USDCARD    = "com.bemestaranimal.bepmobile.DATA_ERROR_USDCARD",
-            DATA_STATUS_DEVICE          = "com.bemestaranimal.bepmobile.DATA_STATUS_DEVICE",
-            DATA_REALTIME_CLIMATE       = "com.bemestaranimal.bepmobile.DATA_REALTIME_CLIMATE",
-            DATA_REALTIME_TEMPERATURE   = "com.bemestaranimal.bepmobile.DATA_REALTIME_TEMPERATURE",
-            DATA_REALTIME_PPG           = "com.bemestaranimal.bepmobile.DATA_REALTIME_PPG";
+            SWITCH_CMD = "com.example.riccieli.SWITCH_CMD",
+            LABEL_SWITCH = "com.example.riccieli.LABEL_SWITCH",
+            VALUES_SWITCH = "com.example.riccieli.VALUES_SWITCH",
+            DISPLAY_CMD = "com.example.riccieli.DISPLAY_CMD",
+            LABEL_DISPLAY = "com.example.rAiccieli.LBEL_DISPLAY",
+            TEXT_DISPLAY = "com.example.rAiccieli.TEXT_DISPLAY",
+            UPDATE_DISPLAY_CMD = "com.example.riccieli.UPDATE_DISPLAY_CMD",
+            UPDATE_TEXT_DISPLAY ="com.example.riccieli.UPDATE_TEXT_DISPLAY",
+            TEXT_CMD = "com.example.riccieli.TEXT_CMD",
+            COMBOBOX_CMD = "com.example.riccieli.COMBOBOX_CMD",
+            LABEL_COMBOBOX = "com.example.riccieli.LABEL_COMBOBOX",
+            NUMBER_OF_ITENS_COMBOBOX = "com.example.riccieli.NUMBER_OF_ITENS_COMBOBOX",
+            RANGE_CMD = "com.example.riccieli.RANGE_CMD",
+            LABEL_RANGE = "com.example.riccieli.LABEL_RANGE",
+            MIN_MAX_RANGE = "com.example.riccieli.MIN_MAX_RANGE",
+            SET_RANGE_CMD = "com.example.riccieli.SET_RANGE_CMD",
+            UPDATE_RANGE =  "com.example.riccieli.UPDATE_RANGE";
+
 
     public final static UUID UUID_DEVICE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -246,18 +262,52 @@ public class BluetoothService extends Service {
                                 Intent intent = null;
                                 if (tags.length > 1) {
                                     switch (tags[0]){
-
-                                        case "c":
+                                        case "SWITCH":
                                             Log.d(TAG, "data: " + cmd[i]);
-                                            intent = new Intent(DATA_STATUS_DEVICE);
-                                            intent.putExtra(EXTRA_DATA, tags[1]);
+                                            intent = new Intent(SWITCH_CMD);
+                                            intent.putExtra(NUMBER_OF_SWITCHES, tags[1]);
+                                            intent.putExtra(LABEL_SWITCH,tags[2]);
+                                            intent.putExtra(VALUES_SWITCH,tags[3]);
                                             break;
 
-                                        case "E":
+                                        case "TEXT":
                                             Log.d(TAG, "data: " + cmd[i]);
-                                            intent = new Intent(DATA_ERROR_USDCARD);
-                                            intent.putExtra(EXTRA_DATA, "error");
+                                            intent = new Intent(TEXT_CMD);
+                                            intent.putExtra(EXTRA_DATA_TEXT, tags[1]);
                                             break;
+
+                                        case "COMBOBOX":
+                                            Log.d(TAG, "data: " + cmd[i]);
+                                            intent = new Intent(COMBOBOX_CMD);
+                                            intent.putExtra(LABEL_COMBOBOX,tags[1]);
+                                            intent.putExtra(NUMBER_OF_ITENS_COMBOBOX,tags[2]);
+                                            intent.putExtra(ITENS_OF_COMBOBOX, tags[3]);
+                                            break;
+
+                                        case "RANGE":
+                                            Log.d(TAG, "data: " + cmd[i]);
+                                            intent = new Intent(RANGE_CMD);
+                                            intent.putExtra(LABEL_RANGE,tags[1]);
+                                            intent.putExtra(MIN_MAX_RANGE, tags[2]);
+                                            break;
+                                        case "DISPLAY":
+                                            Log.d(TAG, "data: " + cmd[i]);
+                                            intent = new Intent(DISPLAY_CMD);
+                                            intent.putExtra(LABEL_DISPLAY,tags[1]);
+                                            intent.putExtra(TEXT_DISPLAY,tags[2]);
+                                            break;
+
+                                        case "UPDATE_DISPLAY":
+                                            Log.d(TAG, "data: " + cmd[i]);
+                                            intent = new Intent(UPDATE_DISPLAY_CMD);
+                                            intent.putExtra(UPDATE_TEXT_DISPLAY,tags[1]);
+                                            break;
+                                        case "SET_RANGE":
+                                            Log.d(TAG, "data: " + cmd[i]);
+                                            intent = new Intent(SET_RANGE_CMD);
+                                            intent.putExtra(UPDATE_RANGE,tags[1]);
+                                            break;
+
 
                                         case "e":
                                             Log.e(TAG, cmd[i]);

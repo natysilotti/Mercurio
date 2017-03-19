@@ -22,10 +22,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.example.riccieli.mercurio.bluetooth.ListDevice;
-import com.example.riccieli.mercurio.control.ControlActivity;
-import com.example.riccieli.mercurio.control.SelectorActivity;
+import com.example.riccieli.mercurio.control.ControlFragment;
+//import com.example.riccieli.mercurio.control.SelectorFragment;
+
+import java.nio.channels.Selector;
 
 import static com.example.riccieli.mercurio.Constants.ADDRESS_CONNECTION;
 import static com.example.riccieli.mercurio.Constants.INTENT_CONNECTION;
@@ -55,11 +58,11 @@ public class MainActivity extends AppCompatActivity
             else if (BluetoothService.ACTION_CONNECTED.equals(action)) {
                 connectingProgress.dismiss();
                 showDialogNeutral("Conectado!", "Conexão realizada com sucesso!", "OK");
+                mBluetoothService.sendData("CONFIG#OK;");
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                /*Fragment fragment = DeviceConnectedFragment.newInstance(unit, device, msg, mBinderService);
-                ft.replace(R.id.devices_placeholder, fragment);
+                Fragment fragment = ControlFragment.newInstance(mBinderService);
+                ft.replace(R.id.main_fragment, fragment);
                 ft.commit();
-                */
             }
         }
     };
@@ -128,6 +131,7 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -158,6 +162,7 @@ public class MainActivity extends AppCompatActivity
         init();
     }
 
+
     private void init() {
         FragmentTransaction ft =  getSupportFragmentManager().beginTransaction();
         Fragment fragment = new ListDevice();
@@ -183,13 +188,20 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.control) {
-            startActivity(new Intent(MainActivity.this, ControlActivity.class));
+            /*FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            Fragment fragment = ControlFragment.newInstance(mBinderService);
+            ft.replace(R.id.main_fragment, fragment);
+            ft.commit();*/
         } else if (id == R.id.charts) {
-            startActivity(new Intent(MainActivity.this, SelectorActivity.class));
+         //   startActivity(new Intent(MainActivity.this, SelectorActivity.class));
 
         } else if (id == R.id.tables) {
 
         } else if (id == R.id.selectors) {
+           // FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+          //  Fragment fragment = SelectorFragment.newInstance(mBinderService);
+          //  ft.replace(R.id.main_fragment, fragment);
+          //  ft.commit();
 
         } else if (id == R.id.progress_bar) {
 
